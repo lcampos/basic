@@ -1,19 +1,23 @@
 import fs from "fs";
 import semver from "semver"
 import {execSync} from "child_process"
-// Value to set for the environment variable
-const myValue = 'Hello from JS script';
-
-// Write the variable to the GITHUB_ENV file
-fs.appendFileSync(process.env.GITHUB_ENV, `MY_VARIABLE=${myValue}\n`);
 
 // Function to get the last two git tags
 function getLastTwoTags() {
   try {
-    const tags = execSync("git tag --sort=-creatordate | grep -E '^v([0-9]+\\.[0-9]+\\.[0-9]+)$' | head -n 2")
+    // make sure we're always getting the latest tags
+    execSync("git fetch --tags")
+
+    const currentTag = execSync("git tag --sort=-creatordate | grep -E '^v([0-9]+\.[0-9]+\.[0-9]+)$' | sed -n '1p' | sed 's/^v//'")
       .toString()
-      .trim()
-      .split('\n');
+      .trim();
+    const previousTag = execSync("git tag --sort=-creatordate | grep -E '^v([0-9]+\.[0-9]+\.[0-9]+)$' | sed -n '2p' | sed 's/^v//'")
+      .toString()
+      .trim();
+    
+    const tags = [];
+    tags.push(currentTag)
+    tags.push(previousTag)
     return tags;
   } catch (error) {
     console.error('Error getting tags:', error);
