@@ -21,6 +21,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Fetch previous tags
+        run: git fetch --tags
+
       # gets the version string from the ref (i.e. removes the 'refs/tags/v' part) & release type
       - name: Determine release variables
         run: |
