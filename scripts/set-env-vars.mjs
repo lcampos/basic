@@ -32,7 +32,7 @@ function determineReleaseType(previousTag, currentTag) {
 const tags = getLastTwoTags();
 
 if (tags.length < 2) {
-  console.log('Not enough tags to compare.');
+  console.log('Not enough tags to compare.', tags);
   process.exit(1);
 }
 
