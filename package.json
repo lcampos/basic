@@ -8,6 +8,7 @@
     "test": "zup test"
   },
   "dependencies": {
-    "zuplo": "latest"
+    "zuplo": "latest",
+    "semver": "7.6.3"
   }
 }
