@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "ZUPLO_VERSION=$(echo "${{ github.ref }}" | sed -e "s/refs\/tags\/v/${replace}/g" )" >> $GITHUB_ENV
 
-          CURRENT_VERSION=$(git tag --sort=-creatordate | grep -E '^v([0-9]+\.[0-9]+\.[0-9]+)$' | sed -n '1p' | sed 's/^v//')
+          CURRENT_VERSION=$(echo "${{ github.ref }}" | sed -e "s/refs\/tags\/v/${replace}/g")
           PREVIOUS_VERSION=$(git tag --sort=-creatordate | grep -E '^v([0-9]+\.[0-9]+\.[0-9]+)$' | sed -n '2p' | sed 's/^v//')          
           if [[ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]]; then
             echo "New version detected, CURRENT_VERSION: $CURRENT_VERSION"
