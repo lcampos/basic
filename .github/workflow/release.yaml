@@ -1,0 +1,54 @@
+name: Determine Release Type and Publish
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # gets the version string from the ref (i.e. removes the 'refs/tags/v' part) & release type
+      - name: Determine release variables
+        run: |
+          echo "ZUPLO_VERSION=$(echo "${{ github.ref }}" | sed -e "s/refs\/tags\/v/${replace}/g" )" >> $GITHUB_ENV
+
+          CURRENT_VERSION=$(git tag --sort=-creatordate | grep -E '^v([0-9]+\.[0-9]+\.[0-9]+)$' | sed -n '1p' | sed 's/^v//')
+          PREVIOUS_VERSION=$(git tag --sort=-creatordate | grep -E '^v([0-9]+\.[0-9]+\.[0-9]+)$' | sed -n '2p' | sed 's/^v//')          
+          if [[ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]]; then
+            echo "New version detected, CURRENT_VERSION: $CURRENT_VERSION"
+            echo "New version detected, PREVIOUS_VERSION: $PREVIOUS_VERSION"
+            
+            # Split version numbers for major, minor, and patch
+            CURRENT_MAJOR=$(echo "$CURRENT_VERSION" | cut -d. -f1)
+            CURRENT_MINOR=$(echo "$CURRENT_VERSION" | cut -d. -f2)
+            CURRENT_PATCH=$(echo "$CURRENT_VERSION" | cut -d. -f3)
+            
+            PREVIOUS_MAJOR=$(echo "$PREVIOUS_VERSION" | cut -d. -f1)
+            PREVIOUS_MINOR=$(echo "$PREVIOUS_VERSION" | cut -d. -f2)
+            PREVIOUS_PATCH=$(echo "$PREVIOUS_VERSION" | cut -d. -f3)
+
+            if [[ "$CURRENT_MAJOR" -gt "$PREVIOUS_MAJOR" ]]; then
+              echo "RELEASE_TYPE=major" >> $GITHUB_ENV
+            elif [[ "$CURRENT_MINOR" -gt "$PREVIOUS_MINOR" ]]; then
+              echo "RELEASE_TYPE=minor" >> $GITHUB_ENV
+            elif [[ "$CURRENT_PATCH" -gt "$PREVIOUS_PATCH" ]]; then
+              echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
+            else
+              echo "RELEASE_TYPE=unknown" >> $GITHUB_ENV
+            fi
+          fi
+
+      - name: Output release variables
+        run: echo "ZUPLO_VERSION => ${{ env.ZUPLO_VERSION }}, RELEASE_TYPE => ${{ env.RELEASE_TYPE }}"
