@@ -22,11 +22,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run JS script to set environment variable
-        run: node scripts/set-env.js
+        run: node scripts/set-env-vars.mjs
 
       - name: Use the environment variable
         run: echo "The value of MY_VARIABLE is $MY_VARIABLE"
-        
+
       - name: Fetch previous tags
         run: git fetch --tags
 

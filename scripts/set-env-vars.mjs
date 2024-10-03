@@ -1,5 +1,4 @@
-// scripts/set-env.js
-const fs = require('fs');
+import fs from "fs";
 
 // Value to set for the environment variable
 const myValue = 'Hello from JS script';
